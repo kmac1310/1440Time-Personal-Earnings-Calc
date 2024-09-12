@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1440TIME™ Personal Earnings Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            color: white;
+        }
+        .container {
+            max-width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button.reset {
+            background-color: #f44336;
+        }
+        .time-blocks {
+            display: flex;
+            flex-direction: column;
+        }
+        .time-block {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .time-value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .per-minute {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .time-left {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .explanation {
+            font-size: 14px;
+            text-align: left;
+            margin-top: 10px;
+        }
+        .motto {
+            font-size: 24px;
+            color: yellow;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .footer-text {
+            font-size: 16px;
+            text-align: left;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>1440TIME™ Personal Earnings Calculator</h1>
+        <div class="input-group">
+            <input type="number" id="annual-income" placeholder="Annual Income">
+            <input type="number" id="sleep-hours" placeholder="Sleep Hours/Day">
+            <button onclick="calculateEarnings()">Calculate</button>
+            <button onclick="resetCalculator()" class="reset">Reset</button>
+        </div>
+        <div class="time-blocks">
+            <div class="time-block">
+                <h3>Working Time</h3>
+                <div id="work-earnings" class="time-value">$0</div>
+                <div id="work-per-minute" class="per-minute">Per minute: $0.00</div>
+                <div id="work-time-left" class="time-left">124800:00</div>
+                <div class="explanation">This is your earning power during work hours. Maximize this time for career growth and financial stability.</div>
+            </div>
+            <div class="time-block">
+                <h3>Awake Time</h3>
+                <div id="awake-earnings" class="time-value">$0</div>
+                <div id="awake-per-minute" class="per-minute">Per minute: $0.00</div>
+                <div id="awake-time-left" class="time-left">000000:00</div>
+                <div class="explanation">Your time is valuable even when not working. Use these minutes for personal growth, relationships, and pursuits that enrich your life.</div>
+            </div>
+            <div class="time-block">
+                <h3>Total Time</h3>
+                <div id="total-earnings" class="time-value">$0</div>
+                <div id="total-per-minute" class="per-minute">Per minute: $0.00</div>
+                <div id="total-time-left" class="time-left">525600:00</div>
+                <div class="explanation">This perspective shows how your income spreads across all minutes, including sleep. It emphasizes the finite nature of time and the importance of work-life balance.</div>
+            </div>
+        </div>
+        <div class="motto">Make every minute count!</div>
+        <div class="footer-text">
+            The 1440TIME™ concept reminds us that time is always running, whether we're conscious of it or not. Each minute holds potential for productivity, growth, or enjoyment. By understanding the value of your time across different perspectives, you can make more informed decisions about how you spend it. Remember, time is your most valuable and non-renewable resource – use it wisely to achieve your goals and live a fulfilling life.
+        </div>
+    </div>
+
+    <script>
+    let workEarningsPerMinute = 0;
+    let awakeEarningsPerMinute = 0;
+    let totalEarningsPerMinute = 0;
+    let workEarnings = 0;
+    let awakeEarnings = 0;
+    let totalEarnings = 0;
+    let workTimeLeft = 124800 * 60;
+    let awakeTimeLeft = 0;
+    let totalTimeLeft = 525600 * 60;
+    let clockInterval;
+
+    function calculateEarnings() {
+        const annualIncome = parseFloat(document.getElementById('annual-income').value);
+        const sleepHours = parseFloat(document.getElementById('sleep-hours').value);
+
+        if (isNaN(annualIncome) || isNaN(sleepHours)) {
+            alert("Please enter valid numbers for both fields.");
+            return;
+        }
+
+        workEarningsPerMinute = annualIncome / (260 * 8 * 60);
+        awakeTimeLeft = (365 * (24 - sleepHours) * 60) * 60;
+        awakeEarningsPerMinute = annualIncome / (365 * (24 - sleepHours) * 60);
+        totalEarningsPerMinute = annualIncome / (525600);
+
+        document.getElementById('work-per-minute').textContent = `Per minute: $${workEarningsPerMinute.toFixed(2)}`;
+        document.getElementById('awake-per-minute').textContent = `Per minute: $${awakeEarningsPerMinute.toFixed(2)}`;
+        document.getElementById('total-per-minute').textContent = `Per minute: $${totalEarningsPerMinute.toFixed(2)}`;
+
+        workEarnings = 0;
+        awakeEarnings = 0;
+        totalEarnings = 0;
+        
+        if (clockInterval) clearInterval(clockInterval);
+        clockInterval = setInterval(updateClocks, 1000);
+    }
+
+    function updateClocks() {
+        workEarnings += workEarningsPerMinute / 60;
+        awakeEarnings += awakeEarningsPerMinute / 60;
+        totalEarnings += totalEarningsPerMinute / 60;
+        workTimeLeft--;
+        awakeTimeLeft--;
+        totalTimeLeft--;
+
+        document.getElementById('work-earnings').textContent = '$' + workEarnings.toLocaleString('en-US', {maximumFractionDigits: 2});
+        document.getElementById('awake-earnings').textContent = '$' + awakeEarnings.toLocaleString('en-US', {maximumFractionDigits: 2});
+        document.getElementById('total-earnings').textContent = '$' + totalEarnings.toLocaleString('en-US', {maximumFractionDigits: 2});
+        
+        document.getElementById('work-time-left').textContent = formatTime(workTimeLeft);
+        document.getElementById('awake-time-left').textContent = formatTime(awakeTimeLeft);
+        document.getElementById('total-time-left').textContent = formatTime(totalTimeLeft);
+
+        if (totalTimeLeft <= 0) {
+            clearInterval(clockInterval);
+            document.getElementById('work-time-left').textContent = "Work Year Complete!";
+            document.getElementById('awake-time-left').textContent = "Awake Year Complete!";
+            document.getElementById('total-time-left').textContent = "Year Complete!";
+        }
+    }
+
+    function formatTime(time) {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes.toString().padStart(6, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function resetCalculator() {
+        document.getElementById('annual-income').value = '';
+        document.getElementById('sleep-hours').value = '';
+        if (clockInterval) clearInterval(clockInterval);
+        ['work', 'awake', 'total'].forEach(type => {
+            document.getElementById(`${type}-earnings`).textContent = '$0';
+            document.getElementById(`${type}-per-minute`).textContent = 'Per minute: $0.00';
+        });
+        document.getElementById('work-time-left').textContent = '124800:00';
+        document.getElementById('awake-time-left').textContent = '000000:00';
+        document.getElementById('total-time-left').textContent = '525600:00';
+    }
+    </script>
+</body>
+</html>
